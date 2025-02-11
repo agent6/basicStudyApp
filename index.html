@@ -109,7 +109,6 @@
         clearInterval(examInterval);
         var html = `
           <h1 class="mb-4">Study Program – Main Menu</h1>
-          <p>This exam simulator app runs locally on your computer. You can build your own Question Bank and use it like an advanced flashcard program to test your knowledge.</p>
           <div class="d-grid gap-3">
             <button class="btn btn-primary" onclick="showExam()">Simulate Exam</button>
             <button class="btn btn-primary" onclick="showAdhoc()">Adhoc Questions</button>
@@ -227,7 +226,6 @@
         saveExamAnswer();
         var total = examQuestions.length;
         var totalScore = 0;
-        // For each exam question, update performance records with partial credit.
         examQuestions.forEach(function(question, index) {
           var userSelection = examAnswers[index] || [];
           var correctAnswers = [];
@@ -241,7 +239,9 @@
           performanceRecords[topicKey].attempts++;
           
           var questionScore = 0;
-          if (userSelection.length > 0) {
+          if (userSelection.length === 0) {
+            questionScore = 0;
+          } else {
             var numCorrect = 0;
             var numIncorrect = 0;
             userSelection.forEach(function(selectedIndex) {
@@ -315,7 +315,7 @@
         document.getElementById('app').innerHTML = html;
       }
       
-      // Uses getSelectedOptions and updates performance records for adhoc mode.
+      // Uses getSelectedOptions.
       function checkAdhocAnswer() {
         var form = document.getElementById('adhocForm');
         var selected = getSelectedOptions(form);
@@ -329,15 +329,45 @@
           performanceRecords[topicKey] = { attempts: 0, score: 0 };
         }
         performanceRecords[topicKey].attempts++;
-        if (isCorrect) {
-          performanceRecords[topicKey].score += 1;
-        }
         var html = isCorrect 
                    ? '<p class="text-success">Correct!</p>' 
                    : '<p class="text-danger">Incorrect. ' + escapeHTML(currentAdhocQuestion.miniLesson) + '</p>';
         html += `<button class="btn btn-outline-primary" onclick="renderAdhocQuestion()">Next Question</button>
                  <br><br>
                  <button class="btn btn-secondary" onclick="showMainMenu()">Back to Main Menu</button>`;
+        document.getElementById('app').innerHTML = html;
+      }
+      
+      /******** Performance Tracker Module ********/
+      function showPerformance() {
+        currentModule = 'performance';
+        var html = `<h2 class="mb-3">Performance Tracker</h2>`;
+        if (Object.keys(performanceRecords).length === 0) {
+          html += '<p>No performance data available yet.</p>';
+        } else {
+          html += `<table class="table table-bordered w-75 mx-auto">
+                     <thead class="table-light">
+                       <tr>
+                         <th>Topic</th>
+                         <th>Attempts</th>
+                         <th>Total Score</th>
+                         <th>Percentage</th>
+                       </tr>
+                     </thead>
+                     <tbody>`;
+          for (var key in performanceRecords) {
+            var rec = performanceRecords[key];
+            var percentage = rec.attempts > 0 ? Math.round((rec.score / rec.attempts) * 100) : 0;
+            html += `<tr>
+                       <td>${escapeHTML(key)}</td>
+                       <td>${rec.attempts}</td>
+                       <td>${rec.score.toFixed(2)}</td>
+                       <td>${percentage}%</td>
+                     </tr>`;
+          }
+          html += `</tbody></table>`;
+        }
+        html += `<br><button class="btn btn-secondary" onclick="showMainMenu()">Back to Main Menu</button>`;
         document.getElementById('app').innerHTML = html;
       }
       
