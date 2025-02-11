@@ -1,4 +1,4 @@
-```markdown
+markdown
 # Basic Study App
 
 A simple, standalone study application that helps you test your knowledge using a custom question bank. This project is perfect for exam simulation, adhoc practice, and performance tracking, all loaded from a local JSON file.
@@ -99,4 +99,4 @@ Contributions are welcome! Feel free to fork the repository and submit pull requ
 ---
 
 Happy studying!
-```
+
