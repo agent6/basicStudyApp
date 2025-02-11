@@ -18,7 +18,7 @@ Test out the app live at:
 To use this project, simply download or clone the repository. The project consists of two primary files:
 
 - **index.html:** The main application file.
-- **questions.json:** A sample question bank containing 16 CCNP ENCOR sample questions.
+- **questions.json:** A sample question bank containing CCNP ENCOR sample questions.
 
 ### How to Download
 
