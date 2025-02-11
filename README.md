@@ -1,81 +1,102 @@
+```markdown
 # Basic Study App
 
-Welcome to the Basic Study App! This application is designed to help users prepare for exams by simulating test environments, practicing with ad-hoc questions, and tracking performance over time.
-
-## Getting Started
-
-To get started with the Basic Study App, follow these steps:
-
-1. **Download the Application Files**:
-   - Clone or download the repository from GitHub: [https://github.com/agent6/basicStudyApp](https://github.com/agent6/basicStudyApp)
-
-2. **Create Your Question Bank**:
-   - The application uses a `questions.json` file to load questions. You can create your own question bank by writing your questions in JSON format. See the [JSON Schema](#json-schema-for-questions) section below for guidance.
-
-3. **Run the Application**:
-   - Open the `index.html` file in your preferred web browser to start using the app.
+A simple, standalone study application that helps you test your knowledge using a custom question bank. This project is perfect for exam simulation, adhoc practice, and performance tracking, all loaded from a local JSON file.
 
 ## Features
 
-The Basic Study App offers three main features:
+- **Simulate Exam:** Run a full exam simulation with a randomized selection of questions.
+- **Adhoc Questions:** Practice individual questions on the fly.
+- **Performance Tracker:** See your performance across different topics (please note, this data resets on page reload).
 
-1. **Simulate Exam**:
-   - This mode allows you to take a full-length exam simulation. The app will randomly select questions from your question bank, and you'll have a set amount of time to complete the exam.
+## Live Demo
 
-2. **Adhoc Questions**:
-   - Practice individual questions in a non-exam setting. This mode is ideal for quick study sessions and allows you to focus on specific topics.
+Test out the app live at:  
+[https://agent6.github.io/basicStudyApp/](https://agent6.github.io/basicStudyApp/)
 
-3. **Performance Tracker**:
-   - Track your performance over time. The app records your attempts and scores for each topic, helping you identify areas that need improvement. *Note: This information will reset if you reload the page.*
+## Getting Started
 
-## JSON Schema for Questions
+To use this project, simply download or clone the repository. The project consists of two primary files:
 
-To create your own question bank, structure your `questions.json` file according to the following schema:
+- **index.html:** The main application file.
+- **questions.json:** A sample question bank containing 16 CCNP ENCOR sample questions.
+
+### How to Download
+
+Clone the repository using Git:
+
+```bash
+git clone https://github.com/agent6/basicStudyApp.git
+```
+
+Or download the ZIP archive directly from GitHub and extract it.
+
+### Running the App
+
+1. Ensure that both `index.html` and `questions.json` are in the same directory.
+2. Open the `index.html` file in your web browser.
+3. The app will load the questions from `questions.json` automatically.
+4. Navigate through the three main screens:
+   - **Simulate Exam**
+   - **Adhoc Questions**
+   - **Performance Tracker**
+
+## Creating Your Own Question Bank
+
+You can customize the app by modifying the `questions.json` file to create your own question bank. The file should contain an array of question objects that follow the schema outlined below.
+
+### JSON Schema for Questions
+
+Each question object should have the following structure:
 
 ```json
 [
   {
-    "questionText": "What is the capital of France?",
-    "miniLesson": "Paris is the capital and most populous city of France.",
-    "topicSection": "Geography",
-    "topicSubsection": "Europe",
-    "topicTertiary": "Capital Cities",
+    "questionText": "What is the purpose of OSPF in a network?",
+    "miniLesson": "OSPF (Open Shortest Path First) is a routing protocol used to determine the best path for data.",
+    "topicSection": "Routing",
+    "topicSubsection": "OSPF",
+    "topicTertiary": "Basics",
     "options": [
       {
-        "optionText": "Paris",
+        "optionText": "To exchange routing information between routers",
         "isCorrect": true
       },
       {
-        "optionText": "London",
-        "isCorrect": false
-      },
-      {
-        "optionText": "Berlin",
-        "isCorrect": false
-      },
-      {
-        "optionText": "Madrid",
+        "optionText": "To manage network security",
         "isCorrect": false
       }
     ]
   }
 ]
 ```
-Field Descriptions:
 
-questionText (string): The text of the question.
-miniLesson (string): A brief explanation or lesson related to the question.
-topicSection (string): The main category of the question.
-topicSubsection (string): A subcategory under the main category.
-topicTertiary (string): A further division under the subcategory.
-options (array): A list of possible answers, each containing:
-optionText (string): The text of the option.
-isCorrect (boolean): Indicates whether this option is the correct answer.
-By following this schema, you can customize the app with your own questions tailored to your study needs.
+**Field Descriptions:**
 
-Testing the Application
-You can test the application with a sample question bank by visiting: https://agent6.github.io/basicStudyApp/
+- **questionText:** The text of the question.
+- **miniLesson:** A brief explanation or lesson that is displayed if the answer is incorrect.
+- **topicSection:** The main category (e.g., Routing, Switching).
+- **topicSubsection:** A more specific sub-category.
+- **topicTertiary:** A further subdivision for detailed topics.
+- **options:** An array of answer options. Each option object includes:
+  - **optionText:** The text for the answer option.
+  - **isCorrect:** A boolean indicating if the option is correct.
 
-This sample includes 16 CCNP ENCOR questions to demonstrate how the app functions.
+Feel free to add, remove, or modify these fields as needed to suit your study material.
+
+## Sample Questions
+
+The included `questions.json` file contains 16 sample CCNP ENCOR questions to demonstrate how the app works. Use these as a reference when building your own question bank.
+
+## License
+
+This project is licensed under the MIT License.
+
+## Contributing
+
+Contributions are welcome! Feel free to fork the repository and submit pull requests with improvements, bug fixes, or additional features.
+
+---
 
 Happy studying!
+```
