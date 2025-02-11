@@ -85,7 +85,7 @@ Feel free to add, remove, or modify these fields as needed to suit your study ma
 
 ## Sample Questions
 
-The included `questions.json` file contains 16 sample CCNP ENCOR questions to demonstrate how the app works. Use these as a reference when building your own question bank.
+The included `questions.json` file contains sample CCNP ENCOR questions to demonstrate how the app works. Use these as a reference when building your own question bank.
 
 ---
 
