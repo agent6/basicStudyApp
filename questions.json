@@ -1,0 +1,227 @@
+[
+    {
+      "id": "1",
+      "questionText": "Forwarding of network traffic from a Layer 2 perspective uses what information?",
+      "miniLesson": "At Layer 2, switches use the destination MAC address to forward frames to the correct port. This mechanism is fundamental to data link layer switching.",
+      "topicSection": "Networking",
+      "topicSubsection": "Data Link Layer",
+      "topicTertiary": "MAC Address Forwarding",
+      "options": [
+        { "optionText": "Source IP address", "isCorrect": false },
+        { "optionText": "Destination IP address", "isCorrect": false },
+        { "optionText": "Source MAC address", "isCorrect": false },
+        { "optionText": "Destination MAC address", "isCorrect": true },
+        { "optionText": "Data protocol", "isCorrect": false }
+      ]
+    },
+    {
+      "id": "2",
+      "questionText": "What type of network device helps reduce the size of a collision domain?",
+      "miniLesson": "Switches isolate collision domains by providing a separate collision domain for each port, which minimizes collisions in the network.",
+      "topicSection": "Networking",
+      "topicSubsection": "Network Devices",
+      "topicTertiary": "Collision Domain",
+      "options": [
+        { "optionText": "Hub", "isCorrect": false },
+        { "optionText": "Switch", "isCorrect": true },
+        { "optionText": "Load balancer", "isCorrect": false },
+        { "optionText": "Router", "isCorrect": false }
+      ]
+    },
+    {
+      "id": "3",
+      "questionText": "Forwarding of network traffic from a Layer 3 perspective uses what information?",
+      "miniLesson": "Routers forward packets by examining the destination IP address, which is used to determine the best route to the destination.",
+      "topicSection": "Networking",
+      "topicSubsection": "Network Layer",
+      "topicTertiary": "IP Routing",
+      "options": [
+        { "optionText": "Source IP address", "isCorrect": false },
+        { "optionText": "Destination IP address", "isCorrect": true },
+        { "optionText": "Source MAC address", "isCorrect": false },
+        { "optionText": "Destination MAC address", "isCorrect": false },
+        { "optionText": "Data protocol", "isCorrect": false }
+      ]
+    },
+    {
+      "id": "4",
+      "questionText": "What type of network device helps reduce the size of a broadcast domain?",
+      "miniLesson": "Routers are used to segment broadcast domains because they do not forward broadcast traffic, thus limiting broadcasts to a single network segment.",
+      "topicSection": "Networking",
+      "topicSubsection": "Network Devices",
+      "topicTertiary": "Broadcast Domain",
+      "options": [
+        { "optionText": "Hub", "isCorrect": false },
+        { "optionText": "Switch", "isCorrect": false },
+        { "optionText": "Load balancer", "isCorrect": false },
+        { "optionText": "Router", "isCorrect": true }
+      ]
+    },
+    {
+      "id": "5",
+      "questionText": "The _________ can be directly correlated to the MAC address table.",
+      "miniLesson": "CAM (Content Addressable Memory) is used in switches to store MAC addresses for quick lookup, serving as the hardware basis for the MAC address table.",
+      "topicSection": "Networking",
+      "topicSubsection": "Switch Technologies",
+      "topicTertiary": "CAM",
+      "options": [
+        { "optionText": "Adjacency table", "isCorrect": false },
+        { "optionText": "CAM", "isCorrect": true },
+        { "optionText": "TCAM", "isCorrect": false },
+        { "optionText": "Routing table", "isCorrect": false }
+      ]
+    },
+    {
+      "id": "6",
+      "questionText": "A ___________ forwarding architecture provides increased port density and forwarding scalability.",
+      "miniLesson": "Distributed forwarding spreads the packet-forwarding function across multiple devices or processors, enhancing both scalability and port density compared to centralized systems.",
+      "topicSection": "Networking",
+      "topicSubsection": "Forwarding Architectures",
+      "topicTertiary": "Distributed",
+      "options": [
+        { "optionText": "Centralized", "isCorrect": false },
+        { "optionText": "Clustered", "isCorrect": false },
+        { "optionText": "Software", "isCorrect": false },
+        { "optionText": "Distributed", "isCorrect": true }
+      ]
+    },
+    {
+      "id": "7",
+      "questionText": "CEF is composed of which components? (Choose two.)",
+      "miniLesson": "Cisco Express Forwarding (CEF) relies on both the Forwarding Information Base (FIB) and the adjacency table to efficiently precompute and manage packet forwarding decisions.",
+      "topicSection": "Networking",
+      "topicSubsection": "Forwarding Technologies",
+      "topicTertiary": "CEF",
+      "options": [
+        { "optionText": "Routing Information Base", "isCorrect": false },
+        { "optionText": "Forwarding Information Base", "isCorrect": true },
+        { "optionText": "Label Information Base", "isCorrect": false },
+        { "optionText": "Adjacency table", "isCorrect": true },
+        { "optionText": "MAC address table", "isCorrect": false }
+      ]
+    },
+    {
+      "id": "8",
+      "questionText": "How many different BPDU types are there?",
+      "miniLesson": "BPDU (Bridge Protocol Data Unit) types are used in spanning tree protocols. The original 802.1D specification defines two types: the Configuration BPDU and the Topology Change BPDU.",
+      "topicSection": "Networking",
+      "topicSubsection": "Spanning Tree Protocol",
+      "topicTertiary": "BPDU Types",
+      "options": [
+        { "optionText": "One", "isCorrect": false },
+        { "optionText": "Two", "isCorrect": true },
+        { "optionText": "Three", "isCorrect": false },
+        { "optionText": "Four", "isCorrect": false }
+      ]
+    },
+    {
+      "id": "9",
+      "questionText": "What primary attribute is used to elect a root bridge?",
+      "miniLesson": "The primary attribute used in the root bridge election is the bridge priority. Lower bridge priority values take precedence, making 'Bridge priority' the key factor.",
+      "topicSection": "Networking",
+      "topicSubsection": "Spanning Tree Protocol",
+      "topicTertiary": "Root Bridge Election",
+      "options": [
+        { "optionText": "Switch port priority", "isCorrect": false },
+        { "optionText": "Bridge priority", "isCorrect": true },
+        { "optionText": "Switch serial number", "isCorrect": false },
+        { "optionText": "Path cost", "isCorrect": false }
+      ]
+    },
+    {
+      "id": "10",
+      "questionText": "The original 802.1D specification assigns what port cost value to a 1 Gbps interface?",
+      "miniLesson": "According to the original 802.1D specification, a 1 Gbps interface is assigned a port cost value of 4, which reflects the relative speed of the connection.",
+      "topicSection": "Networking",
+      "topicSubsection": "Spanning Tree Protocol",
+      "topicTertiary": "Port Cost",
+      "options": [
+        { "optionText": "1", "isCorrect": false },
+        { "optionText": "2", "isCorrect": false },
+        { "optionText": "4", "isCorrect": true },
+        { "optionText": "19", "isCorrect": false }
+      ]
+    },
+    {
+      "id": "11",
+      "questionText": "All of the ports on a root bridge are assigned what role?",
+      "miniLesson": "On the root bridge, every port is designated because there is no need for a root port on the root bridge. This means all ports forward traffic, making them 'Designated ports'.",
+      "topicSection": "Networking",
+      "topicSubsection": "Spanning Tree Protocol",
+      "topicTertiary": "Port Roles",
+      "options": [
+        { "optionText": "Root port", "isCorrect": false },
+        { "optionText": "Designated port", "isCorrect": true },
+        { "optionText": "Superior port", "isCorrect": false },
+        { "optionText": "Master port", "isCorrect": false }
+      ]
+    },
+    {
+      "id": "12",
+      "questionText": "Using default settings, how long does a port stay in the listening state?",
+      "miniLesson": "By default, a port remains in the listening state for 15 seconds in the spanning tree protocol to ensure network stability before transitioning to the learning or forwarding state.",
+      "topicSection": "Networking",
+      "topicSubsection": "Spanning Tree Protocol",
+      "topicTertiary": "Port Timers",
+      "options": [
+        { "optionText": "2 seconds", "isCorrect": false },
+        { "optionText": "5 seconds", "isCorrect": false },
+        { "optionText": "10 seconds", "isCorrect": false },
+        { "optionText": "15 seconds", "isCorrect": true }
+      ]
+    },
+    {
+      "id": "13",
+      "questionText": "Upon receipt of a configuration BPDU with the topology change flag set, how do the downstream switches react?",
+      "miniLesson": "When a switch receives a configuration BPDU with the topology change flag, it flushes out all old MAC addresses from its MAC address table to quickly update its forwarding database with the new topology information.",
+      "topicSection": "Networking",
+      "topicSubsection": "Spanning Tree Protocol",
+      "topicTertiary": "Topology Change",
+      "options": [
+        { "optionText": "By moving all ports to a blocking state on all switches", "isCorrect": false },
+        { "optionText": "By flushing out all MAC addresses from the MAC address table", "isCorrect": false },
+        { "optionText": "By temporarily moving all non-root ports to a listening state", "isCorrect": false },
+        { "optionText": "By flushing out all old MAC addresses from the MAC address table", "isCorrect": true },
+        { "optionText": "By updating the Topology Change version flag on the local switch database", "isCorrect": false }
+      ]
+    },
+    {
+      "id": "14",
+      "questionText": "Which of the following are not RSTP port states?",
+      "miniLesson": "RSTP (Rapid Spanning Tree Protocol) operates with only three port states: Discarding, Learning, and Forwarding. Thus, Blocking and Listening are not valid RSTP port states.",
+      "topicSection": "Networking",
+      "topicSubsection": "Rapid Spanning Tree Protocol",
+      "topicTertiary": "RSTP Port States",
+      "options": [
+        { "optionText": "Blocking", "isCorrect": true },
+        { "optionText": "Listening", "isCorrect": true },
+        { "optionText": "Learning", "isCorrect": false },
+        { "optionText": "Forwarding", "isCorrect": false }
+      ]
+    },
+    {
+      "id": "15",
+      "questionText": "True or false: When comparing 802.1D to RSTP, the number of port states is reduced from five to four.",
+      "miniLesson": "This statement is false. While 802.1D defines five port states (including Disabled), RSTP simplifies this by using only three states: Discarding, Learning, and Forwarding.",
+      "topicSection": "Networking",
+      "topicSubsection": "Rapid Spanning Tree Protocol",
+      "topicTertiary": "Port States Comparison",
+      "options": [
+        { "optionText": "True", "isCorrect": false },
+        { "optionText": "False", "isCorrect": true }
+      ]
+    },
+    {
+      "id": "16",
+      "questionText": "True or false: In a large Layer 2 switch topology that is running RSTP, the infrastructure must fully converge before any packets can be forwarded.",
+      "miniLesson": "This statement is false. In RSTP, packet forwarding can begin immediately even if full convergence has not yet been achieved, minimizing network disruption.",
+      "topicSection": "Networking",
+      "topicSubsection": "Rapid Spanning Tree Protocol",
+      "topicTertiary": "Convergence",
+      "options": [
+        { "optionText": "True", "isCorrect": false },
+        { "optionText": "False", "isCorrect": true }
+      ]
+    }
+  ]
+  
