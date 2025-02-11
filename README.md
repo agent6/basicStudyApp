@@ -81,8 +81,6 @@ Each question object should have the following structure:
   - **optionText:** The text for the answer option.
   - **isCorrect:** A boolean indicating if the option is correct.
 
-Feel free to add, remove, or modify these fields as needed to suit your study material.
-
 ## Sample Questions
 
 The included `questions.json` file contains sample CCNP ENCOR questions to demonstrate how the app works. Use these as a reference when building your own question bank.
