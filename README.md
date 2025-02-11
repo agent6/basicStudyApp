@@ -77,7 +77,7 @@ Each question object should have the following structure:
 - **topicSection:** The main category (e.g., Routing, Switching).
 - **topicSubsection:** A more specific sub-category.
 - **topicTertiary:** A further subdivision for detailed topics.
-- **options:** An array of answer options. Each option object includes:
+- **options:** An array of answer options. Each option object includes (min 2 max 6 options):
   - **optionText:** The text for the answer option.
   - **isCorrect:** A boolean indicating if the option is correct.
 
