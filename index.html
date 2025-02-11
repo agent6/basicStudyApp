@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Study Program Application</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    /* Custom CSS overrides */
+    body {
+      background: #f4f4f4;
+    }
+    #app {
+      margin: 20px auto;
+      max-width: 800px;
+      background: #fff;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    pre {
+      background: #eef;
+      padding: 10px;
+      overflow-x: auto;
+    }
+    .option-row {
+      margin-bottom: 10px;
+    }
+    table {
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="container my-4"></div>
+  
+  <!-- Bootstrap Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    (function() {
+      // Since we're not using an API, define the local questions file.
+      var questionsFile = "questions.json";
+      
+      // Utility Functions
+      function escapeHTML(str) {
+        var div = document.createElement('div');
+        div.appendChild(document.createTextNode(str));
+        return div.innerHTML;
+      }
+      
+      function arraysEqual(a, b) {
+        if (a.length !== b.length) return false;
+        for (var i = 0; i < a.length; i++) {
+          if (a[i] !== b[i]) return false;
+        }
+        return true;
+      }
+      
+      function shuffleArray(array) {
+        var currentIndex = array.length, temporaryValue, randomIndex;
+        while (0 !== currentIndex) {
+          randomIndex = Math.floor(Math.random() * currentIndex);
+          currentIndex -= 1;
+          temporaryValue = array[currentIndex];
+          array[currentIndex] = array[randomIndex];
+          array[randomIndex] = temporaryValue;
+        }
+        return array;
+      }
+      
+      function formatTime(seconds) {
+        var m = Math.floor(seconds / 60);
+        var s = seconds % 60;
+        return (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+      }
+      
+      // Reusable helper: extracts selected checkbox values from a given form.
+      function getSelectedOptions(formElement) {
+        var selected = [];
+        var inputs = formElement.elements['option'];
+        if (!inputs) return selected;
+        inputs = (inputs.length === undefined) ? [inputs] : inputs;
+        for (var i = 0; i < inputs.length; i++) {
+          if (inputs[i].checked) {
+            selected.push(parseInt(inputs[i].value));
+          }
+        }
+        return selected;
+      }
+      
+      // Global Variables (scoped within IIFE)
+      var currentModule = 'main';
+      var examQuestions = [];
+      var examAnswers = {}; // exam question answers by index
+      var currentExamIndex = 0;
+      var examTimer = 7200; // 120 minutes in seconds
+      var examInterval;
+      
+      var adhocQuestions = [];
+      var currentAdhocQuestion = null;
+      
+      // Performance records: { "Topic Section > Topic Subsection > Topic Tertiary": { attempts: number, score: number } }
+      var performanceRecords = {};
+      
+      /******** Main Menu ********/
+      function showMainMenu() {
+        currentModule = 'main';
+        clearInterval(examInterval);
+        var html = `
+          <h1 class="mb-4">Study Program – Main Menu</h1>
+          <div class="d-grid gap-3">
+            <button class="btn btn-primary" onclick="showExam()">Simulate Exam</button>
+            <button class="btn btn-primary" onclick="showAdhoc()">Adhoc Questions</button>
+            <button class="btn btn-primary" onclick="showPerformance()">Performance Tracker</button>
+          </div>
+        `;
+        document.getElementById('app').innerHTML = html;
+      }
+      
+      /******** Exam Simulation Module ********/
+      function showExam() {
+        currentModule = 'exam';
+        examQuestions = [];
+        examAnswers = {};
+        currentExamIndex = 0;
+        examTimer = 7200;
+        fetch(questionsFile)
+          .then(response => response.json())
+          .then(data => {
+            examQuestions = shuffleArray(data).slice(0, 120);
+            if (examQuestions.length === 0) {
+              alert("No questions available for the exam.");
+              showMainMenu();
+              return;
+            }
+            // Shuffle options for each question
+            examQuestions.forEach(function(q) {
+              if (!q.shuffledOptions) {
+                q.shuffledOptions = shuffleArray(q.options.slice());
+              }
+            });
+            renderExamQuestion();
+            examInterval = setInterval(updateExamTimer, 1000);
+          })
+          .catch(error => {
+            alert("Error loading exam questions: " + error);
+            showMainMenu();
+          });
+      }
+      
+      function updateExamTimer() {
+        if (examTimer <= 0) {
+          clearInterval(examInterval);
+          submitExam();
+          return;
+        }
+        examTimer--;
+        var timerElem = document.getElementById('timer');
+        if (timerElem) {
+          timerElem.innerText = formatTime(examTimer);
+        }
+      }
+      
+      function renderExamQuestion() {
+        if (currentExamIndex < 0) currentExamIndex = 0;
+        if (currentExamIndex >= examQuestions.length)
+          currentExamIndex = examQuestions.length - 1;
+        var question = examQuestions[currentExamIndex];
+        var optionsToDisplay = question.shuffledOptions;
+        var html = `
+          <h2 class="mb-3">Exam Simulation</h2>
+          <div class="mb-3">
+            Timer: <span id="timer">${formatTime(examTimer)}</span>
+          </div>
+          <div class="mb-3">Question ${currentExamIndex + 1} of ${examQuestions.length}</div>
+          <p>${escapeHTML(question.questionText)}</p>
+          <form id="examForm" class="mb-3">
+        `;
+        optionsToDisplay.forEach(function(option, index) {
+          var checked = "";
+          if (examAnswers[currentExamIndex] && examAnswers[currentExamIndex].includes(index))
+            checked = "checked";
+          html += `<div class="form-check">
+                     <input class="form-check-input" type="checkbox" name="option" value="${index}" ${checked}>
+                     <label class="form-check-label">${escapeHTML(option.optionText)}</label>
+                   </div>`;
+        });
+        html += `</form>
+          <div class="d-grid gap-2 d-md-flex justify-content-md-center mb-3">
+            <button class="btn btn-outline-primary" onclick="prevExamQuestion()">Previous</button>
+            <button class="btn btn-outline-primary" onclick="nextExamQuestion()">Next</button>
+            <button class="btn btn-success" onclick="submitExam()">Submit</button>
+          </div>
+          <button class="btn btn-secondary" onclick="showMainMenu()">Back to Main Menu</button>
+        `;
+        document.getElementById('app').innerHTML = html;
+      }
+      
+      function prevExamQuestion() {
+        saveExamAnswer();
+        if (currentExamIndex > 0) {
+          currentExamIndex--;
+          renderExamQuestion();
+        }
+      }
+      
+      function nextExamQuestion() {
+        saveExamAnswer();
+        if (currentExamIndex < examQuestions.length - 1) {
+          currentExamIndex++;
+          renderExamQuestion();
+        }
+      }
+      
+      // Uses the reusable getSelectedOptions function.
+      function saveExamAnswer() {
+        var form = document.getElementById('examForm');
+        if (form) {
+          examAnswers[currentExamIndex] = getSelectedOptions(form);
+        }
+      }
+      
+      function submitExam() {
+        clearInterval(examInterval);
+        saveExamAnswer();
+        var total = examQuestions.length;
+        var totalScore = 0;
+        examQuestions.forEach(function(question, index) {
+          var userSelection = examAnswers[index] || [];
+          var correctAnswers = [];
+          question.shuffledOptions.forEach(function(option, i) {
+            if (option.isCorrect) correctAnswers.push(i);
+          });
+          var topicKey = question.topicSection + " > " + question.topicSubsection + " > " + question.topicTertiary;
+          if (!performanceRecords[topicKey]) {
+            performanceRecords[topicKey] = { attempts: 0, score: 0 };
+          }
+          performanceRecords[topicKey].attempts++;
+          
+          var questionScore = 0;
+          if (userSelection.length === 0) {
+            questionScore = 0;
+          } else {
+            var numCorrect = 0;
+            var numIncorrect = 0;
+            userSelection.forEach(function(selectedIndex) {
+              if (correctAnswers.includes(selectedIndex)) {
+                numCorrect++;
+              } else {
+                numIncorrect++;
+              }
+            });
+            questionScore = (numCorrect - numIncorrect) / correctAnswers.length;
+            if (questionScore < 0) questionScore = 0;
+            if (questionScore > 1) questionScore = 1;
+          }
+          totalScore += questionScore;
+          performanceRecords[topicKey].score += questionScore;
+        });
+        var percentage = Math.round((totalScore / total) * 100);
+        var html = `
+          <h2 class="mb-3">Exam Results</h2>
+          <p>Your score: ${totalScore.toFixed(2)} out of ${total} (Percentage: ${percentage}%)</p>
+          <button class="btn btn-secondary" onclick="showMainMenu()">Back to Main Menu</button>
+        `;
+        document.getElementById('app').innerHTML = html;
+      }
+      
+      /******** Adhoc Questions Module ********/
+      function showAdhoc() {
+        currentModule = 'adhoc';
+        fetch(questionsFile)
+          .then(response => response.json())
+          .then(data => {
+            adhocQuestions = data;
+            renderAdhocQuestion();
+          })
+          .catch(error => {
+            alert("Error loading adhoc question: " + error);
+            showMainMenu();
+          });
+      }
+      
+      function renderAdhocQuestion() {
+        if (adhocQuestions.length === 0) {
+          alert("No questions available.");
+          showMainMenu();
+          return;
+        }
+        var randomIndex = Math.floor(Math.random() * adhocQuestions.length);
+        var question = adhocQuestions[randomIndex];
+        if (!question.shuffledOptions) {
+          question.shuffledOptions = shuffleArray(question.options.slice());
+        }
+        currentAdhocQuestion = question;
+        var html = `
+          <h2 class="mb-3">Adhoc Question</h2>
+          <p>${escapeHTML(question.questionText)}</p>
+          <form id="adhocForm" class="mb-3">
+        `;
+        question.shuffledOptions.forEach(function(option, index) {
+          html += `<div class="form-check">
+                     <input class="form-check-input" type="checkbox" name="option" value="${index}">
+                     <label class="form-check-label">${escapeHTML(option.optionText)}</label>
+                   </div>`;
+        });
+        html += `</form>
+          <div class="d-grid gap-2 d-md-flex justify-content-md-center mb-3">
+            <button class="btn btn-success" onclick="checkAdhocAnswer()">Submit Answer</button>
+            <button class="btn btn-outline-primary" onclick="renderAdhocQuestion()">Next Question</button>
+          </div>
+          <button class="btn btn-secondary" onclick="showMainMenu()">Back to Main Menu</button>
+        `;
+        document.getElementById('app').innerHTML = html;
+      }
+      
+      // Uses getSelectedOptions.
+      function checkAdhocAnswer() {
+        var form = document.getElementById('adhocForm');
+        var selected = getSelectedOptions(form);
+        var correctAnswers = [];
+        currentAdhocQuestion.shuffledOptions.forEach(function(option, i) {
+          if (option.isCorrect) correctAnswers.push(i);
+        });
+        var isCorrect = arraysEqual(selected.sort(), correctAnswers.sort());
+        var topicKey = currentAdhocQuestion.topicSection + " > " + currentAdhocQuestion.topicSubsection + " > " + currentAdhocQuestion.topicTertiary;
+        if (!performanceRecords[topicKey]) {
+          performanceRecords[topicKey] = { attempts: 0, score: 0 };
+        }
+        performanceRecords[topicKey].attempts++;
+        var html = isCorrect 
+                   ? '<p class="text-success">Correct!</p>' 
+                   : '<p class="text-danger">Incorrect. ' + escapeHTML(currentAdhocQuestion.miniLesson) + '</p>';
+        html += `<button class="btn btn-outline-primary" onclick="renderAdhocQuestion()">Next Question</button>
+                 <br><br>
+                 <button class="btn btn-secondary" onclick="showMainMenu()">Back to Main Menu</button>`;
+        document.getElementById('app').innerHTML = html;
+      }
+      
+      /******** Performance Tracker Module ********/
+      function showPerformance() {
+        currentModule = 'performance';
+        var html = `<h2 class="mb-3">Performance Tracker</h2>`;
+        if (Object.keys(performanceRecords).length === 0) {
+          html += '<p>No performance data available yet.</p>';
+        } else {
+          html += `<table class="table table-bordered w-75 mx-auto">
+                     <thead class="table-light">
+                       <tr>
+                         <th>Topic</th>
+                         <th>Attempts</th>
+                         <th>Total Score</th>
+                         <th>Percentage</th>
+                       </tr>
+                     </thead>
+                     <tbody>`;
+          for (var key in performanceRecords) {
+            var rec = performanceRecords[key];
+            var percentage = rec.attempts > 0 ? Math.round((rec.score / rec.attempts) * 100) : 0;
+            html += `<tr>
+                       <td>${escapeHTML(key)}</td>
+                       <td>${rec.attempts}</td>
+                       <td>${rec.score.toFixed(2)}</td>
+                       <td>${percentage}%</td>
+                     </tr>`;
+          }
+          html += `</tbody></table>`;
+        }
+        html += `<br><button class="btn btn-secondary" onclick="showMainMenu()">Back to Main Menu</button>`;
+        document.getElementById('app').innerHTML = html;
+      }
+      
+      // Expose functions to the global scope for inline event handlers.
+      window.showMainMenu = showMainMenu;
+      window.showExam = showExam;
+      window.prevExamQuestion = prevExamQuestion;
+      window.nextExamQuestion = nextExamQuestion;
+      window.submitExam = submitExam;
+      window.showAdhoc = showAdhoc;
+      window.renderAdhocQuestion = renderAdhocQuestion;
+      window.checkAdhocAnswer = checkAdhocAnswer;
+      window.showPerformance = showPerformance;
+      
+      // On page load, show the Main Menu.
+      window.onload = function() {
+        showMainMenu();
+      };
+    })();
+  </script>
+</body>
+</html>
