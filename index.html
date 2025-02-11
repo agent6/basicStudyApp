@@ -29,6 +29,14 @@
     table {
       margin: 0 auto;
     }
+    /* Style for the rich-text mini lesson editor */
+    #qLesson {
+      border: 1px solid #ced4da;
+      border-radius: 0.25rem;
+      padding: 0.375rem 0.75rem;
+      background-color: #fff;
+      min-height: 150px;
+    }
   </style>
 </head>
 <body>
@@ -39,10 +47,13 @@
   
   <script>
     (function() {
-      // Since we're not using an API, define the local questions file.
+      // Since we're not using an API, questions are loaded from a local JSON file.
       var questionsFile = "questions.json";
       
-      // Utility Functions
+      // Check if the URL includes "beta" (e.g., index.html?beta)
+      var isBeta = window.location.search.indexOf("beta") > -1;
+      
+      /******** Utility Functions ********/
       function escapeHTML(str) {
         var div = document.createElement('div');
         div.appendChild(document.createTextNode(str));
@@ -59,7 +70,7 @@
       
       function shuffleArray(array) {
         var currentIndex = array.length, temporaryValue, randomIndex;
-        while (0 !== currentIndex) {
+        while (currentIndex !== 0) {
           randomIndex = Math.floor(Math.random() * currentIndex);
           currentIndex -= 1;
           temporaryValue = array[currentIndex];
@@ -75,7 +86,7 @@
         return (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
       }
       
-      // Reusable helper: extracts selected checkbox values from a given form.
+      // Extracts selected checkbox values from a form.
       function getSelectedOptions(formElement) {
         var selected = [];
         var inputs = formElement.elements['option'];
@@ -89,18 +100,22 @@
         return selected;
       }
       
-      // Global Variables (scoped within IIFE)
+      /******** Global Variables ********/
       var currentModule = 'main';
       var examQuestions = [];
-      var examAnswers = {}; // exam question answers by index
+      var examAnswers = {};  // keyed by question index
       var currentExamIndex = 0;
-      var examTimer = 7200; // 120 minutes in seconds
+      var examTimer = 7200;  // seconds (120 minutes)
       var examInterval;
       
       var adhocQuestions = [];
       var currentAdhocQuestion = null;
       
-      // Performance records: { "Topic Section > Topic Subsection > Topic Tertiary": { attempts: number, score: number } }
+      // Question Bank Manager variables (in-memory only)
+      var qbQuestions = [];
+      var currentQBIndex = 0;
+      
+      // Performance records: keyed by "Topic Section > Topic Subsection > Topic Tertiary"
       var performanceRecords = {};
       
       /******** Main Menu ********/
@@ -112,9 +127,12 @@
           <div class="d-grid gap-3">
             <button class="btn btn-primary" onclick="showExam()">Simulate Exam</button>
             <button class="btn btn-primary" onclick="showAdhoc()">Adhoc Questions</button>
-            <button class="btn btn-primary" onclick="showPerformance()">Performance Tracker</button>
-          </div>
-        `;
+            <button class="btn btn-primary" onclick="showPerformance()">Performance Tracker</button>`;
+        // Only show Question Manager button in beta mode.
+        if (isBeta) {
+          html += `<button class="btn btn-primary" onclick="showQuestionBankManager()">Question Manager</button>`;
+        }
+        html += `</div>`;
         document.getElementById('app').innerHTML = html;
       }
       
@@ -134,7 +152,7 @@
               showMainMenu();
               return;
             }
-            // Shuffle options for each question
+            // Shuffle options for each question.
             examQuestions.forEach(function(q) {
               if (!q.shuffledOptions) {
                 q.shuffledOptions = shuffleArray(q.options.slice());
@@ -164,8 +182,7 @@
       
       function renderExamQuestion() {
         if (currentExamIndex < 0) currentExamIndex = 0;
-        if (currentExamIndex >= examQuestions.length)
-          currentExamIndex = examQuestions.length - 1;
+        if (currentExamIndex >= examQuestions.length) currentExamIndex = examQuestions.length - 1;
         var question = examQuestions[currentExamIndex];
         var optionsToDisplay = question.shuffledOptions;
         var html = `
@@ -213,7 +230,6 @@
         }
       }
       
-      // Uses the reusable getSelectedOptions function.
       function saveExamAnswer() {
         var form = document.getElementById('examForm');
         if (form) {
@@ -315,7 +331,6 @@
         document.getElementById('app').innerHTML = html;
       }
       
-      // Uses getSelectedOptions.
       function checkAdhocAnswer() {
         var form = document.getElementById('adhocForm');
         var selected = getSelectedOptions(form);
@@ -331,7 +346,7 @@
         performanceRecords[topicKey].attempts++;
         var html = isCorrect 
                    ? '<p class="text-success">Correct!</p>' 
-                   : '<p class="text-danger">Incorrect. ' + escapeHTML(currentAdhocQuestion.miniLesson) + '</p>';
+                   : '<p class="text-danger">Incorrect. ' + currentAdhocQuestion.miniLesson + '</p>';
         html += `<button class="btn btn-outline-primary" onclick="renderAdhocQuestion()">Next Question</button>
                  <br><br>
                  <button class="btn btn-secondary" onclick="showMainMenu()">Back to Main Menu</button>`;
@@ -371,7 +386,248 @@
         document.getElementById('app').innerHTML = html;
       }
       
-      // Expose functions to the global scope for inline event handlers.
+      /******** Question Manager Module ********/
+      function showQuestionBankManager() {
+        // Only allow access if in beta mode.
+        if (!isBeta) {
+          alert("Question Manager is only available in beta mode.");
+          return;
+        }
+        currentModule = 'questionBank';
+        // If qbQuestions is empty, load from the local file.
+        if (qbQuestions.length === 0) {
+          fetch(questionsFile)
+            .then(response => response.json())
+            .then(data => {
+              qbQuestions = data;
+              currentQBIndex = 0;
+              renderQuestionBankManager();
+            })
+            .catch(error => {
+              alert("Error loading questions: " + error);
+              showMainMenu();
+            });
+        } else {
+          renderQuestionBankManager();
+        }
+      }
+      
+      function renderQuestionBankManager() {
+        var totalQuestions = qbQuestions.length;
+        var currentQuestionNumber = totalQuestions > 0 ? currentQBIndex + 1 : 0;
+        var html = `<h2 class="mb-3">Question Manager</h2>`;
+        if (totalQuestions === 0) {
+          html += '<p>No questions available.</p>';
+        } else {
+          var question = qbQuestions[currentQBIndex];
+          html += `<div class="mb-2"><strong>Question ${currentQuestionNumber} of ${totalQuestions}:</strong> ${escapeHTML(question.questionText)}</div>`;
+          html += `<div class="mb-2"><strong>Mini Lesson:</strong> ${question.miniLesson}</div>`;
+          html += `<div class="mb-2"><strong>Topic Section:</strong> ${escapeHTML(question.topicSection)}</div>`;
+          html += `<div class="mb-2"><strong>Topic Subsection:</strong> ${escapeHTML(question.topicSubsection)}</div>`;
+          html += `<div class="mb-2"><strong>Topic Tertiary:</strong> ${escapeHTML(question.topicTertiary)}</div>`;
+          html += `<div class="mb-3"><strong>Options:</strong>`;
+          if (question.options && question.options.length > 0) {
+            html += `<ul class="list-group">`;
+            question.options.forEach(function(opt, index) {
+              html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                         ${index + 1}. ${escapeHTML(opt.optionText)}
+                         ${opt.isCorrect ? '<span class="badge bg-success">Correct</span>' : ''}
+                       </li>`;
+            });
+            html += `</ul>`;
+          } else {
+            html += `<p>No options provided.</p>`;
+          }
+          html += `</div>`;
+        }
+        html += `<div class="d-grid gap-2 d-md-flex justify-content-md-center my-3">
+                   <button class="btn btn-outline-primary" onclick="prevQB()">Previous</button>
+                   <button class="btn btn-outline-primary" onclick="nextQB()">Next</button>
+                   <button class="btn btn-success" onclick="newQuestion()">New</button>`;
+        if (totalQuestions > 0) {
+          html += `<button class="btn btn-primary" onclick="editQuestion()">Edit</button>
+                   <button class="btn btn-danger" onclick="deleteQuestion()">Delete</button>`;
+        }
+        html += `</div>
+                 <button class="btn btn-secondary" onclick="showMainMenu()">Back to Main Menu</button>`;
+        document.getElementById('app').innerHTML = html;
+      }
+      
+      function prevQB() {
+        if (qbQuestions.length > 0) {
+          currentQBIndex = (currentQBIndex - 1 + qbQuestions.length) % qbQuestions.length;
+          renderQuestionBankManager();
+        }
+      }
+      
+      function nextQB() {
+        if (qbQuestions.length > 0) {
+          currentQBIndex = (currentQBIndex + 1) % qbQuestions.length;
+          renderQuestionBankManager();
+        }
+      }
+      
+      function newQuestion() {
+        renderQuestionEditor(null);
+      }
+      
+      function editQuestion() {
+        if (qbQuestions.length > 0) {
+          renderQuestionEditor(qbQuestions[currentQBIndex]);
+        }
+      }
+      
+      function deleteQuestion() {
+        if (qbQuestions.length > 0 && confirm("Are you sure you want to delete this question?")) {
+          qbQuestions.splice(currentQBIndex, 1);
+          if (currentQBIndex >= qbQuestions.length) {
+            currentQBIndex = qbQuestions.length - 1;
+          }
+          renderQuestionBankManager();
+        }
+      }
+      
+      /******** Question Editor (Rich-Text Mini Lesson) ********/
+      function renderQuestionEditor(question) {
+        var isNew = (question === null);
+        var html = `<h2 class="mb-3">${isNew ? "New Question" : "Edit Question"}</h2>
+                    <form id="questionEditorForm">
+                      <div class="mb-3">
+                        <label class="form-label">Question Text:</label>
+                        <input type="text" id="qText" class="form-control" value="${question ? escapeHTML(question.questionText) : ''}">
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label">Mini Lesson:</label>
+                        <!-- Toolbar for rich-text formatting -->
+                        <div class="btn-toolbar mb-2" role="toolbar">
+                          <div class="btn-group me-2" role="group">
+                            <button type="button" class="btn btn-sm btn-secondary" onclick="execCmd('bold')"><b>B</b></button>
+                            <button type="button" class="btn btn-sm btn-secondary" onclick="execCmd('italic')"><i>I</i></button>
+                            <button type="button" class="btn btn-sm btn-secondary" onclick="execCmd('underline')"><u>U</u></button>
+                            <button type="button" class="btn btn-sm btn-secondary" onclick="execCmd('insertOrderedList')">OL</button>
+                            <button type="button" class="btn btn-sm btn-secondary" onclick="execCmd('insertUnorderedList')">UL</button>
+                          </div>
+                        </div>
+                        <!-- Rich-text contenteditable box -->
+                        <div id="qLesson" class="form-control" contenteditable="true">${question ? question.miniLesson : ''}</div>
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label">Topic Section:</label>
+                        <input type="text" id="qTopicSection" class="form-control" value="${question ? escapeHTML(question.topicSection) : ''}">
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label">Topic Subsection:</label>
+                        <input type="text" id="qTopicSubsection" class="form-control" value="${question ? escapeHTML(question.topicSubsection) : ''}">
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label">Topic Tertiary:</label>
+                        <input type="text" id="qTopicTertiary" class="form-control" value="${question ? escapeHTML(question.topicTertiary) : ''}">
+                      </div>
+                      <div id="optionsEditor" class="mb-3">
+                        <strong>Answer Options:</strong>
+                      </div>
+                      <div class="mb-3">
+                        <button type="button" class="btn btn-outline-primary" onclick="addOptionRow()">Add Option</button>
+                      </div>
+                      <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                        <button type="button" class="btn btn-success" onclick="saveQuestion(${isNew ? 'null' : question.id})">Save</button>
+                        <button type="button" class="btn btn-secondary" onclick="showQuestionBankManager()">Cancel</button>
+                      </div>
+                    </form>`;
+        document.getElementById('app').innerHTML = html;
+        
+        // Populate options if editing an existing question; otherwise, add two blank rows.
+        if (question && question.options) {
+          question.options.forEach(function(option) {
+            addOptionRow(option.optionText, option.isCorrect);
+          });
+        } else {
+          addOptionRow();
+          addOptionRow();
+        }
+      }
+      
+      function addOptionRow(text = '', isCorrect = false) {
+        var optionsDiv = document.getElementById('optionsEditor');
+        var count = optionsDiv.getElementsByClassName('option-row').length;
+        if (count >= 6) {
+          alert("Maximum of 6 options allowed.");
+          return;
+        }
+        var div = document.createElement('div');
+        div.className = 'option-row input-group mb-2';
+        div.innerHTML = `
+          <input type="text" class="form-control optionText" value="${text}" placeholder="Option text">
+          <span class="input-group-text">Correct</span>
+          <div class="input-group-text">
+            <input type="checkbox" class="optionCorrect" ${isCorrect ? 'checked' : ''}>
+          </div>
+          <button type="button" class="btn btn-danger" onclick="removeOptionRow(this)">Remove</button>
+        `;
+        optionsDiv.appendChild(div);
+      }
+      
+      function removeOptionRow(button) {
+        var optionsDiv = document.getElementById('optionsEditor');
+        var count = optionsDiv.getElementsByClassName('option-row').length;
+        if (count <= 2) {
+          alert("Minimum of 2 options required.");
+          return;
+        }
+        optionsDiv.removeChild(button.parentNode);
+      }
+      
+      function saveQuestion(id) {
+        var qText = document.getElementById('qText').value;
+        // Get the HTML content from the rich-text mini lesson editor.
+        var qLesson = document.getElementById('qLesson').innerHTML;
+        var qTopicSection = document.getElementById('qTopicSection').value;
+        var qTopicSubsection = document.getElementById('qTopicSubsection').value;
+        var qTopicTertiary = document.getElementById('qTopicTertiary').value;
+        var optionsDiv = document.getElementById('optionsEditor');
+        var optionRows = optionsDiv.getElementsByClassName('option-row');
+        var options = [];
+        for (var i = 0; i < optionRows.length; i++) {
+          var text = optionRows[i].getElementsByClassName('optionText')[0].value;
+          var isCorrect = optionRows[i].getElementsByClassName('optionCorrect')[0].checked;
+          options.push({ optionText: text, isCorrect: isCorrect });
+        }
+        if (!qText || !qLesson || !qTopicSection || !qTopicSubsection || !qTopicTertiary || options.length < 2) {
+          alert("Please fill in all fields and ensure at least 2 options.");
+          return;
+        }
+        var questionData = {
+          id: id ? id : Date.now(), // generate a unique ID for new questions
+          questionText: qText,
+          miniLesson: qLesson,
+          topicSection: qTopicSection,
+          topicSubsection: qTopicSubsection,
+          topicTertiary: qTopicTertiary,
+          options: options
+        };
+        if (id === null) {
+          qbQuestions.push(questionData);
+          currentQBIndex = qbQuestions.length - 1;
+          alert("Question added.");
+          showQuestionBankManager();
+        } else {
+          for (var i = 0; i < qbQuestions.length; i++) {
+            if (qbQuestions[i].id === id) {
+              qbQuestions[i] = questionData;
+              break;
+            }
+          }
+          alert("Question updated.");
+          showQuestionBankManager();
+        }
+      }
+      
+      /******** Simple execCmd for Rich-Text Editing ********/
+      window.execCmd = function(command) {
+        document.execCommand(command, false, null);
+      };
+      
+      /******** Expose Functions Globally ********/
       window.showMainMenu = showMainMenu;
       window.showExam = showExam;
       window.prevExamQuestion = prevExamQuestion;
@@ -381,11 +637,32 @@
       window.renderAdhocQuestion = renderAdhocQuestion;
       window.checkAdhocAnswer = checkAdhocAnswer;
       window.showPerformance = showPerformance;
+      window.showQuestionBankManager = showQuestionBankManager;
+      window.prevQB = prevQB;
+      window.nextQB = nextQB;
+      window.newQuestion = newQuestion;
+      window.editQuestion = editQuestion;
+      window.deleteQuestion = deleteQuestion;
+      window.addOptionRow = addOptionRow;
+      window.removeOptionRow = removeOptionRow;
+      window.saveQuestion = saveQuestion;
+      window.renderQuestionEditor = renderQuestionEditor;
       
-      // On page load, show the Main Menu.
+      // Initialize and show the Main Menu on load.
       window.onload = function() {
+        currentModule = 'main';
+        examQuestions = [];
+        examAnswers = {};
+        currentExamIndex = 0;
+        examTimer = 7200;
+        adhocQuestions = [];
+        currentAdhocQuestion = null;
+        qbQuestions = [];
+        currentQBIndex = 0;
+        performanceRecords = {};
         showMainMenu();
       };
+      
     })();
   </script>
 </body>
