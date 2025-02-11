@@ -123,7 +123,7 @@
         currentModule = 'main';
         clearInterval(examInterval);
         var html = `
-          <h1 class="mb-4">Study Program <br> Main Menu</h1>
+          <h1 class="mb-4">Study Program – Main Menu</h1>
           <div class="d-grid gap-3">
             <button class="btn btn-primary" onclick="showExam()">Simulate Exam</button>
             <button class="btn btn-primary" onclick="showAdhoc()">Adhoc Questions</button>
@@ -330,12 +330,12 @@
         `;
         document.getElementById('app').innerHTML = html;
       }
-      
+
       function checkAdhocAnswer() {
         var form = document.getElementById('adhocForm');
         var selected = getSelectedOptions(form);
         var correctAnswers = [];
-        currentAdhocQuestion.shuffledOptions.forEach(function(option, i) {
+        currentAdhocQuestion.shuffledOptions.forEach(function (option, i) {
           if (option.isCorrect) correctAnswers.push(i);
         });
         var isCorrect = arraysEqual(selected.sort(), correctAnswers.sort());
@@ -344,14 +344,18 @@
           performanceRecords[topicKey] = { attempts: 0, score: 0 };
         }
         performanceRecords[topicKey].attempts++;
-        var html = isCorrect 
-                   ? '<p class="text-success">Correct!</p>' 
-                   : '<p class="text-danger">Incorrect. ' + currentAdhocQuestion.miniLesson + '</p>';
+        if (isCorrect) {
+          performanceRecords[topicKey].score += 1;
+        }
+        var html = isCorrect
+          ? '<p class="text-success">Correct!</p>'
+          : '<p class="text-danger">Incorrect. ' + currentAdhocQuestion.miniLesson + '</p>';
         html += `<button class="btn btn-outline-primary" onclick="renderAdhocQuestion()">Next Question</button>
-                 <br><br>
-                 <button class="btn btn-secondary" onclick="showMainMenu()">Back to Main Menu</button>`;
+           <br><br>
+           <button class="btn btn-secondary" onclick="showMainMenu()">Back to Main Menu</button>`;
         document.getElementById('app').innerHTML = html;
       }
+
       
       /******** Performance Tracker Module ********/
       function showPerformance() {
