@@ -1,4 +1,3 @@
-markdown
 # Basic Study App
 
 A simple, standalone study application that helps you test your knowledge using a custom question bank. This project is perfect for exam simulation, adhoc practice, and performance tracking, all loaded from a local JSON file.
@@ -87,14 +86,6 @@ Feel free to add, remove, or modify these fields as needed to suit your study ma
 ## Sample Questions
 
 The included `questions.json` file contains 16 sample CCNP ENCOR questions to demonstrate how the app works. Use these as a reference when building your own question bank.
-
-## License
-
-This project is licensed under the MIT License.
-
-## Contributing
-
-Contributions are welcome! Feel free to fork the repository and submit pull requests with improvements, bug fixes, or additional features.
 
 ---
 
